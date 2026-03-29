@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCaption - 智能字幕生成</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 背景动画 -->
+    <div class="bg-animation">
+        <div class="gradient-mesh"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <span class="brand-text">SmartCaption</span>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="nav-link active">生成字幕</a>
+            <a href="#" class="nav-link">历史记录</a>
+            <a href="#" class="nav-link">设置</a>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="main-container">
+        <!-- 左侧：配置面板 -->
+        <aside class="config-panel">
+            <div class="panel-header">
+                <h2>配置面板</h2>
+                <div class="panel-indicator"></div>
+            </div>
+
+            <!-- 文件上传区域 -->
+            <section class="config-section" id="upload-section">
+                <div class="section-header">
+                    <span class="section-number">01</span>
+                    <h3>文件上传</h3>
+                </div>
+                <div class="upload-zone" id="upload-zone">
+                    <input type="file" id="file-input" accept="video/*,audio/*" hidden>
+                    <div class="upload-placeholder" id="upload-placeholder">
+                        <div class="upload-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <p class="upload-text">拖拽文件到此处</p>
+                        <p class="upload-subtext">或点击选择文件</p>
+                        <p class="upload-hint">支持 MP4, MKV, AVI, MOV, MP3, WAV 等格式</p>
+                    </div>
+                    <div class="upload-preview" id="upload-preview" hidden>
+                        <div class="file-info">
+                            <div class="file-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="M21 15l-5-5L5 21"/>
+                                </svg>
+                            </div>
+                            <div class="file-details">
+                                <span class="file-name" id="file-name">video.mp4</span>
+                                <span class="file-size" id="file-size">0 MB</span>
+                            </div>
+                            <button class="file-remove" id="file-remove" title="移除文件">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="file-progress" id="file-progress" hidden>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <span class="progress-text" id="progress-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ASR模型配置 -->
+            <section class="config-section" id="model-section">
+                <div class="section-header">
+                    <span class="section-number">02</span>
+                    <h3>ASR模型</h3>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">选择模型</label>
+                    <div class="select-wrapper">
+                        <select class="form-select" id="model-select">
+                            <option value="Qwen/Qwen3-ASR-1.7B">Qwen3-ASR-1.7B (推荐)</option>
+                            <option value="Qwen/Qwen3-ASR-0.6B">Qwen3-ASR-0.6B (轻量)</option>
+                            <option value="openai/whisper-large-v3">Whisper Large V3 (多语言)</option>
+                        </select>
+                        <div class="select-arrow">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="model-info" id="model-info">
+                    <div class="info-card">
+                        <div class="info-header">
+                            <span class="info-badge">1.7B 参数</span>
+                            <span class="info-badge">中文优化</span>
+                        </div>
+                        <p class="info-desc">中文语音识别效果优秀，速度快，适合中文视频内容。</p>
+                        <div class="info-stats">
+                            <div class="stat">
+                                <span class="stat-value">29</span>
+                                <span class="stat-label">支持语言</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-value">22</span>
+                                <span class="stat-label">方言支持</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 字幕样式配置 -->
+            <section class="config-section" id="style-section">
+                <div class="section-header">
+                    <span class="section-number">03</span>
+                    <h3>字幕样式</h3>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">字幕格式</label>
+                    <div class="radio-group">
+                        <label class="radio-item active">
+                            <input type="radio" name="subtitle-format" value="srt" checked>
+                            <span class="radio-label">SRT</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="subtitle-format" value="ass">
+                            <span class="radio-label">ASS</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="style-options" id="style-options">
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label class="form-label">位置</label>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="position-select">
+                                    <option value="bottom">底部</option>
+                                    <option value="top">顶部</option>
+                                    <option value="center">居中</option>
+                                </select>
+                                <div class="select-arrow">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group half">
+                            <label class="form-label">字体</label>
+                            <div class="select-wrapper">
+                                <select class="form-select" id="font-select">
+                                    <option value="Arial">Arial</option>
+                                    <option value="Microsoft YaHei">微软雅黑</option>
+                                    <option value="SimHei">黑体</option>
+                                    <option value="Noto Sans CJK SC">Noto Sans</option>
+                                </select>
+                                <div class="select-arrow">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">字体大小: <span id="font-size-value">62</span>px</label>
+                        <input type="range" class="form-range" id="font-size" min="10" max="128" value="62">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label class="form-label">字体颜色</label>
+                            <div class="color-picker">
+                                <input type="color" id="font-color" value="#FFFFFF">
+                                <span class="color-value">#FFFFFF</span>
+                            </div>
+                        </div>
+                        <div class="form-group half">
+                            <label class="form-label">描边颜色</label>
+                            <div class="color-picker">
+                                <input type="color" id="outline-color" value="#000000">
+                                <span class="color-value">#000000</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">描边宽度: <span id="outline-width-value">0</span>px</label>
+                        <input type="range" class="form-range" id="outline-width" min="0" max="5" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">垂直边距: <span id="margin-v-value">30</span>px</label>
+                        <input type="range" class="form-range" id="margin-v" min="10" max="128" value="30">
+                    </div>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="soft-subtitle">
+                        <span class="checkbox-checkmark"></span>
+                        <span class="checkbox-label">软字幕 (可开关)</span>
+                    </label>
+                    <p class="checkbox-hint">开启后字幕作为独立轨道嵌入，可在播放器中切换显示/隐藏</p>
+                </div>
+            </section>
+
+            <!-- 开始按钮 -->
+            <button class="btn-primary" id="start-btn" disabled>
+                <span class="btn-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                </span>
+                <span class="btn-text">开始生成字幕</span>
+            </button>
+        </aside>
+
+        <!-- 右侧：预览与进度 -->
+        <div class="content-area">
+            <!-- 视频预览区 -->
+            <section class="preview-section" id="preview-section">
+                <div class="section-title">
+                    <h2>视频预览</h2>
+                    <div class="title-line"></div>
+                </div>
+                <div class="video-container" id="video-container">
+                    <div class="video-placeholder">
+                        <div class="placeholder-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <rect x="2" y="2" width="20" height="20" rx="2.18"/>
+                                <line x1="7" y1="2" x2="7" y2="22"/>
+                                <line x1="17" y1="2" x2="17" y2="22"/>
+                                <line x1="2" y1="12" x2="22" y2="12"/>
+                                <line x1="2" y1="7" x2="7" y2="7"/>
+                                <line x1="2" y1="17" x2="7" y2="17"/>
+                                <line x1="17" y1="17" x2="22" y2="17"/>
+                                <line x1="17" y1="7" x2="22" y2="7"/>
+                            </svg>
+                        </div>
+                        <p>上传视频后将在此处预览</p>
+                    </div>
+                    <video id="preview-video" controls hidden></video>
+                </div>
+            </section>
+
+            <!-- 处理状态 -->
+            <section class="processing-section" id="processing-section" hidden>
+                <div class="section-title">
+                    <h2>处理中</h2>
+                    <div class="title-line"></div>
+                </div>
+                <div class="processing-status">
+                    <div class="spinner"></div>
+                    <p class="processing-text">正在生成字幕，请稍候...</p>
+                </div>
+            </section>
+
+            <!-- 结果展示区 -->
+            <section class="result-section" id="result-section" hidden>
+                <div class="section-title">
+                    <h2>处理结果</h2>
+                    <div class="title-line"></div>
+                </div>
+                <div class="result-container">
+                    <div class="result-video">
+                        <video id="result-video" controls></video>
+                    </div>
+                    <p class="soft-subtitle-hint" id="soft-subtitle-hint" hidden>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="16" x2="12" y2="12"/>
+                            <line x1="12" y1="8" x2="12.01" y2="8"/>
+                        </svg>
+                        当前为软字幕模式，预览播放器可能无法显示字幕，请下载后使用支持字幕的播放器查看
+                    </p>
+                    <div class="result-actions">
+                        <a class="btn-download" id="download-video" download>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            下载视频
+                        </a>
+                        <a class="btn-download secondary" id="download-subtitle" download>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                            下载字幕
+                        </a>
+                    </div>
+                    <div class="transcription-panel">
+                        <div class="panel-header">
+                            <h3>转录文本</h3>
+                            <button class="btn-toggle" id="toggle-transcription">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="transcription-content" id="transcription-content"></div>
+                    </div>
+                </div>
+            </section>
+
+
+        </div>
+    </main>
+
+    <!-- 提示消息 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
