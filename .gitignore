@@ -68,3 +68,6 @@ pretrained/
 # Cache
 .cache/
 *.cache
+.idea/
+.vscode/
+.cursor/

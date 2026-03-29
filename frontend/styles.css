@@ -976,6 +976,10 @@ body {
     flex-shrink: 0;
 }
 
+.soft-subtitle-hint[hidden] {
+    display: none;
+}
+
 .result-actions {
     display: flex;
     gap: var(--space-md);

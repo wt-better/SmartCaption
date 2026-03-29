@@ -299,6 +299,11 @@ const UI = {
 
         Elements.resultSection.hidden = true;
         Elements.startBtn.disabled = true;
+
+        // 隐藏软字幕提示
+        if (Elements.softSubtitleHint) {
+            Elements.softSubtitleHint.hidden = true;
+        }
     }
 };
 
@@ -520,6 +525,11 @@ function init() {
 
     // 初始化样式选项显示
     Elements.styleOptions.style.display = 'none';
+
+    // 初始化软字幕复选框状态
+    if (Elements.softSubtitle) {
+        Elements.softSubtitle.checked = AppState.config.softSubtitle;
+    }
 
     console.log('SmartCaption App Initialized');
 }
